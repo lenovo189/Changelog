@@ -12,6 +12,22 @@ export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
   title: "Changelog Generator",
   description: "Generate changelog pages from your releases with ease.",
+  openGraph: {
+    title: "Changelog Generator",
+    description: "Generate changelog pages from your releases with ease.",
+    url: defaultUrl,
+    siteName: "Changelog Generator",
+    locale: "en_US",
+    type: "website",
+    images: ["https://i.ibb.co/Gfx2gkDH/Screenshot-2026-01-09-213805.png"], // Update this with your image link
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Changelog Generator",
+    description: "Generate changelog pages from your releases with ease.",
+    creator: "@changelog_gen",
+    images: ["https://i.ibb.co/Gfx2gkDH/Screenshot-2026-01-09-213805.png"], // Update this with your image link
+  },
 };
 
 const geistSans = Geist({
