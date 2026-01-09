@@ -1,3 +1,7 @@
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
+
 import { createAnonClient } from "@/lib/supabase/anon";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
