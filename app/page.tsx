@@ -15,7 +15,7 @@ export default function Home() {
           <SecondPage />
           <Features />
         </div>
-        {/* Place Footer outside flex-1 to span full width */}
+        {/* Place  ggggggggggggggggggggggggggg outside flex-1 to span full width */}
         <Footer />
       </main>
     </PageWrapper>

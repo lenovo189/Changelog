@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, RefreshCw, ExternalLink, Download, Globe, Palette, Check } from "lucide-react";
+import { Loader2, RefreshCw, ExternalLink, Download, Globe, Palette, Check, Code } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
@@ -330,6 +330,81 @@ export function ProjectDashboard({ project, onReset }: { project: Project, onRes
                         <p className="text-xs text-gray-400 italic">
                             Add this URL to your GitHub repository settings and select "Releases" events.
                         </p>
+                    </div>
+                </div>
+
+                <div className="p-8 rounded-2xl border border-gray-200 bg-white text-black shadow-sm space-y-6 lg:col-span-2">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div className="space-y-6">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-gray-100 rounded-lg text-gray-600">
+                                    <Code size={20} />
+                                </div>
+                                <h3 className="font-bold text-xl">React Embed</h3>
+                            </div>
+
+                            <div className="space-y-4">
+                                <p className="text-sm text-gray-600 leading-relaxed">
+                                    Integrate your changelog directly into your React application with a single component.
+                                    This creates a full-page experience that stays in sync with your GitHub releases.
+                                </p>
+                                <div className="flex items-center gap-2 text-xs font-medium text-blue-600 bg-blue-50 px-3 py-2 rounded-lg border border-blue-100 w-fit">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
+                                    Always in sync
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="lg:col-span-2 space-y-2">
+                            <div className="flex items-center justify-between px-1">
+                                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">React Component</p>
+                                <button
+                                    onClick={() => copyToClipboard(`import React from 'react';
+
+const Changelog = () => {
+  return (
+    <iframe 
+      src="${typeof window !== 'undefined' ? window.location.origin : ''}/embed/${project.slug}" 
+      style={{ width: '100%', height: '100vh', border: 'none' }} 
+      title="Changelog"
+    />
+  );
+};
+
+export default Changelog;`, 'react-snippet')}
+                                    className="text-xs font-medium px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg transition-all flex items-center gap-2"
+                                >
+                                    {copied === 'react-snippet' ? (
+                                        <>
+                                            <Check size={12} />
+                                            Copied!
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Download size={12} />
+                                            Copy Code
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                            <div className="relative group">
+                                <pre className="p-6 bg-[#1e1e1e] text-[#d4d4d4] rounded-2xl text-[13px] overflow-x-auto font-mono leading-relaxed shadow-2xl border border-gray-800">
+                                    <code>
+                                        <span className="text-[#569cd6]">import</span> React <span className="text-[#569cd6]">from</span> <span className="text-[#ce9178]">'react'</span>;<br /><br />
+                                        <span className="text-[#569cd6]">const</span> <span className="text-[#dcdcaa]">Changelog</span> = () =&gt; &#123;<br />
+                                        &nbsp;&nbsp;<span className="text-[#569cd6]">return</span> (<br />
+                                        &nbsp;&nbsp;&nbsp;&nbsp;<span className="text-[#808080]">&lt;</span><span className="text-[#569cd6]">iframe</span> <br />
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span className="text-[#9cdcfe]">src</span>=<span className="text-[#ce9178]">"{typeof window !== 'undefined' ? window.location.origin : ''}/embed/{project.slug}"</span> <br />
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span className="text-[#9cdcfe]">style</span>=&#123;&#123; <span className="text-[#9cdcfe]">width</span>: <span className="text-[#ce9178]">'100%'</span>, <span className="text-[#9cdcfe]">height</span>: <span className="text-[#ce9178]">'100vh'</span>, <span className="text-[#9cdcfe]">border</span>: <span className="text-[#ce9178]">'none'</span> &#125;&#125; <br />
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span className="text-[#9cdcfe]">title</span>=<span className="text-[#ce9178]">"Changelog"</span><br />
+                                        &nbsp;&nbsp;&nbsp;&nbsp;<span className="text-[#808080]">/&gt;</span><br />
+                                        &nbsp;&nbsp;);<br />
+                                        &#125;;<br /><br />
+                                        <span className="text-[#569cd6]">export default</span> Changelog;
+                                    </code>
+                                </pre>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
