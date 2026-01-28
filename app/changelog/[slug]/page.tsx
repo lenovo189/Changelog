@@ -5,6 +5,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import { getThemeColors, ProjectTheme } from "@/lib/changelog-themes";
+import { ScrollIndicator } from "@/components/ui/scroll-indicator";
 
 export async function generateMetadata({
     params,
@@ -69,6 +70,7 @@ export default async function ChangelogPage({
                 color: theme.text,
             }}
         >
+            <ScrollIndicator itemsCount={changelogs?.length || 0} theme={theme} />
             {/* Background decorative elements */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div
@@ -208,7 +210,7 @@ export default async function ChangelogPage({
                     style={{ borderColor: `${theme.text}1A` }}
                 >
                     <p className="text-sm opacity-50" style={{ color: theme.text }}>
-                        Powered by <a href="/" className="font-semibold hover:opacity-80 transition-opacity" style={{ color: theme.text }}>Changelog</a>
+                        Powered by <a href="https://usechangelog.vercel.app" className="font-semibold hover:opacity-80 transition-opacity" style={{ color: theme.text }}>Changelog</a>
                     </p>
                 </footer>
             </div>

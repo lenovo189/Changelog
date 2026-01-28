@@ -10,6 +10,7 @@ import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import { Suspense } from "react";
 import { getThemeColors, ProjectTheme } from "@/lib/changelog-themes";
+import { ScrollIndicator } from "@/components/ui/scroll-indicator";
 
 // Separate component for the main content to allow Suspense streaming
 async function ChangelogContent({ slug }: { slug: string }) {
@@ -41,6 +42,7 @@ async function ChangelogContent({ slug }: { slug: string }) {
                 color: theme.text
             }}
         >
+            <ScrollIndicator itemsCount={changelogs?.length || 0} theme={theme} />
             {/* Main content area */}
             <div className="max-w-4xl mx-auto py-12 px-6">
                 <h1 className="text-4xl font-bold mb-12" style={{ color: theme.text }}>Changelog</h1>
@@ -48,7 +50,7 @@ async function ChangelogContent({ slug }: { slug: string }) {
                 {changelogs && changelogs.length > 0 ? (
                     <div className="space-y-16">
                         {changelogs.map((log) => (
-                            <section key={log.id}>
+                            <section key={log.id} data-changelog-item>
                                 <h2 className="text-2xl font-semibold mb-6" style={{ color: theme.text }}>
                                     {new Date(log.published_at).toLocaleDateString('en-US', {
                                         month: 'long',

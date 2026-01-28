@@ -17,6 +17,7 @@ export function Navbar() {
             {/* Menu Links */}
             <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-700">
                 <Link href="/" className="hover:text-black transition-colors">Home</Link>
+                <Link href="/changelog" className="hover:text-black transition-colors">Changelog</Link>
                 <Link href="#features" className="hover:text-black transition-colors">Features</Link>
                 <Link href="#about" className="hover:text-black transition-colors">About</Link>
 
