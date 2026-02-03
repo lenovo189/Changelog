@@ -1,5 +1,6 @@
 import { createAnonClient } from "@/lib/supabase/anon";
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -169,7 +170,17 @@ export default async function ChangelogPage({
                                     remarkPlugins={[remarkGfm]}
                                     rehypePlugins={[rehypeRaw]}
                                     components={{
-                                        img: ({ node, ...props }) => <img style={{ maxWidth: "100%" }} {...props} />,
+                                        img: ({ node, ...props }) => (
+                                            <div className="relative w-full aspect-video my-8">
+                                                <Image
+                                                    src={props.src as string}
+                                                    alt={props.alt || ""}
+                                                    fill
+                                                    className="object-contain rounded-2xl"
+                                                    unoptimized
+                                                />
+                                            </div>
+                                        ),
                                     }}
                                 >
                                     {log.markdown_content}

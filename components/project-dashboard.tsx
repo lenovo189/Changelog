@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, RefreshCw, ExternalLink, Download, Globe, Palette, Check, Code } from "lucide-react";
+import { Loader2, RefreshCw, ExternalLink, Download, Globe, Palette, Check, Code, Sparkles } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
@@ -43,6 +43,9 @@ export function ProjectDashboard({ project, onReset }: { project: Project, onRes
     });
     const [savingTheme, setSavingTheme] = useState(false);
     const [saveSuccess, setSaveSuccess] = useState(false);
+    const [generatingAI, setGeneratingAI] = useState(false);
+    const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+    const [pickingColorFor, setPickingColorFor] = useState<keyof ThemeColors | null>(null);
 
     // Calculate active theme for preview
     const activeTheme = getThemeColors({
@@ -126,6 +129,93 @@ export function ProjectDashboard({ project, onReset }: { project: Project, onRes
         } finally {
             setSavingTheme(false);
         }
+    };
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Create local preview URL
+        const url = URL.createObjectURL(file);
+        setUploadedImageUrl(url);
+
+        setGeneratingAI(true);
+        const formData = new FormData();
+        formData.append("image", file);
+
+        try {
+            const response = await fetch("/api/theme/generate", {
+                method: "POST",
+                body: formData,
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || "Failed to generate theme");
+            }
+
+            const colors = await response.json();
+            setCustomColors(colors);
+            setCurrentTheme('custom');
+        } catch (err: any) {
+            alert(err.message || "Failed to generate theme from image");
+        } finally {
+            setGeneratingAI(false);
+            // Reset input
+            e.target.value = '';
+        }
+    };
+
+    const handleManualImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Create local preview URL
+        const url = URL.createObjectURL(file);
+        setUploadedImageUrl(url);
+        setCurrentTheme('custom');
+
+        // Reset input
+        e.target.value = '';
+    };
+
+    const handleImageClick = async (e: React.MouseEvent<HTMLImageElement>) => {
+        if (!pickingColorFor) return;
+
+        // Try EyeDropper API first (Chromium only)
+        if ('EyeDropper' in window) {
+            try {
+                // @ts-ignore - EyeDropper is not in standard TS types yet
+                const eyeDropper = new window.EyeDropper();
+                const result = await eyeDropper.open();
+                setCustomColors(prev => ({ ...prev, [pickingColorFor]: result.sRGBHex }));
+                setPickingColorFor(null);
+                return;
+            } catch (err) {
+                // User cancelled or error, fall back to canvas
+                console.log("EyeDropper cancelled or failed, falling back to canvas");
+            }
+        }
+
+        const img = e.currentTarget;
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        ctx.drawImage(img, 0, 0);
+
+        // Calculate coordinates relative to the image
+        const rect = img.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * img.naturalWidth;
+        const y = ((e.clientY - rect.top) / rect.height) * img.naturalHeight;
+
+        const pixel = ctx.getImageData(x, y, 1, 1).data;
+        const hex = `#${((1 << 24) + (pixel[0] << 16) + (pixel[1] << 8) + pixel[2]).toString(16).slice(1)}`;
+
+        setCustomColors(prev => ({ ...prev, [pickingColorFor]: hex }));
+        setPickingColorFor(null);
     };
 
     const copyToClipboard = (text: string, id: string) => {
@@ -474,6 +564,43 @@ export default Changelog;`, 'react-snippet')}
                                 </div>
                                 <span className="text-sm font-medium">Custom</span>
                             </button>
+                            <div className="relative">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageUpload}
+                                    className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                                    disabled={generatingAI}
+                                />
+                                <button
+                                    className={`w-full h-full p-3 rounded-lg border-2 text-left transition-all border-dashed border-primary/30 hover:border-primary/60 bg-primary/5 flex flex-col items-center justify-center gap-2 ${generatingAI ? 'opacity-50' : ''}`}
+                                >
+                                    {generatingAI ? (
+                                        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                                    ) : (
+                                        <Sparkles className="h-6 w-6 text-primary" />
+                                    )}
+                                    <span className="text-xs font-bold text-primary uppercase tracking-wider">
+                                        {generatingAI ? "Analyzing..." : "AI Theme"}
+                                    </span>
+                                </button>
+                            </div>
+                            <div className="relative">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleManualImageUpload}
+                                    className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                                />
+                                <button
+                                    className="w-full h-full p-3 rounded-lg border-2 text-left transition-all border-dashed border-muted-foreground/30 hover:border-muted-foreground/60 bg-muted/5 flex flex-col items-center justify-center gap-2"
+                                >
+                                    <Download className="h-6 w-6 text-muted-foreground" />
+                                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                                        Manual Picker
+                                    </span>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -550,6 +677,54 @@ export default Changelog;`, 'react-snippet')}
                                     </div>
                                 </div>
                             </div>
+
+                            {uploadedImageUrl && (
+                                <div className="mt-6 space-y-4 p-4 rounded-xl border bg-muted/30">
+                                    <div className="flex items-center justify-between">
+                                        <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Pick from Image</h4>
+                                        <button
+                                            onClick={() => setUploadedImageUrl(null)}
+                                            className="text-xs text-muted-foreground hover:text-foreground"
+                                        >
+                                            Clear Image
+                                        </button>
+                                    </div>
+                                    <div className="relative group cursor-crosshair overflow-hidden rounded-lg border shadow-inner bg-black/5">
+                                        <img
+                                            src={uploadedImageUrl}
+                                            alt="Uploaded preview"
+                                            className="w-full h-auto max-h-[600px] object-contain"
+                                            onClick={handleImageClick}
+                                        />
+                                        {!pickingColorFor && (
+                                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                                                <p className="text-white text-sm font-medium">Select a color type below to start picking</p>
+                                            </div>
+                                        )}
+                                        {pickingColorFor && (
+                                            <div className="absolute inset-0 bg-primary/10 flex items-center justify-center pointer-events-none border-2 border-primary animate-pulse">
+                                                <p className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                                                    Picking {pickingColorFor}...
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        {(['bg', 'text', 'accent', 'secondary'] as const).map((type) => (
+                                            <button
+                                                key={type}
+                                                onClick={() => setPickingColorFor(type)}
+                                                className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border ${pickingColorFor === type
+                                                    ? "bg-primary text-primary-foreground border-primary shadow-md scale-105"
+                                                    : "bg-background hover:bg-accent border-border"
+                                                    }`}
+                                            >
+                                                {type === 'bg' ? 'Background' : type.charAt(0).toUpperCase() + type.slice(1)}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

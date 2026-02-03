@@ -6,12 +6,12 @@ import { ScrollText } from "lucide-react";
 
 export function Navbar() {
     return (
-        <nav className="w-full flex items-center justify-between p-6 max-w-7xl mx-auto 
+        <nav className="w-full flex items-center justify-between p-6 max-w-7xl mx-auto
                         bg-white text-black z-50 relative">
             {/* Logo */}
             <div className="flex items-center gap-2 font-bold text-xl">
-                <ScrollText className="w-6 h-6 fill-black/20 stroke-black" />
-                <span>CHANGELOG</span>
+                <img src="/logo.png" alt="Aiko Logo" className="w-16 h-16" />
+                <span>AIKO</span>
             </div>
 
             {/* Menu Links */}

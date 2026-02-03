@@ -1,9 +1,7 @@
-export const dynamic = "force-dynamic";
-export const fetchCache = "force-no-store";
-
-
-import { createAnonClient } from "@/lib/supabase/anon";
+import { getProjectBySlug, getChangelogsByProjectId } from "@/lib/data";
 import type { Metadata } from "next";
+import Image from "next/image";
+
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -12,26 +10,17 @@ import { Suspense } from "react";
 import { getThemeColors, ProjectTheme } from "@/lib/changelog-themes";
 import { ScrollIndicator } from "@/components/ui/scroll-indicator";
 
+export const revalidate = 3600; // Revalidate every hour
+
 // Separate component for the main content to allow Suspense streaming
 async function ChangelogContent({ slug }: { slug: string }) {
-    const supabase = createAnonClient();
+    const project = await getProjectBySlug(slug);
 
-    const { data: project, error: projectError } = await supabase
-        .from("projects")
-        .select("*")
-        .eq("slug", slug)
-        .single();
-
-    if (projectError || !project) {
+    if (!project) {
         notFound();
     }
 
-    const { data: changelogs } = await supabase
-        .from("changelogs")
-        .select("*")
-        .eq("project_id", project.id)
-        .order("published_at", { ascending: false });
-
+    const changelogs = await getChangelogsByProjectId(project.id);
     const theme = getThemeColors(project as ProjectTheme);
 
     return (
@@ -83,7 +72,18 @@ async function ChangelogContent({ slug }: { slug: string }) {
                                         remarkPlugins={[remarkGfm]}
                                         rehypePlugins={[rehypeRaw]}
                                         components={{
-                                            img: ({ node, ...props }) => <img style={{ maxWidth: "100%" }} {...props} />,
+                                            img: ({ node, ...props }) => (
+                                                <div className="relative w-full aspect-video my-8">
+                                                    <Image
+                                                        src={props.src as string}
+                                                        alt={props.alt || ""}
+                                                        fill
+                                                        className="object-contain rounded-2xl"
+                                                        unoptimized
+                                                    />
+                                                </div>
+                                            ),
+
                                         }}
                                     >
                                         {log.markdown_content}
@@ -107,13 +107,7 @@ export async function generateMetadata({
     params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
     const { slug } = await params;
-    const supabase = createAnonClient();
-
-    const { data: project } = await supabase
-        .from("projects")
-        .select("repo_name")
-        .eq("slug", slug)
-        .single();
+    const project = await getProjectBySlug(slug);
 
     if (!project) {
         return {

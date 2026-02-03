@@ -10,23 +10,23 @@ const defaultUrl = process.env.VERCEL_URL
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "Changelog Generator",
-  description: "Generate changelog pages from your releases with ease.",
+  title: "Aiko",
+  description: "Your changelog management solution.",
   openGraph: {
-    title: "Changelog Generator",
-    description: "Generate changelog pages from your releases with ease.",
+    title: "Aiko - Changelog Management",
+    description: "Your changelog management solution.",
     url: defaultUrl,
-    siteName: "Changelog Generator",
+    siteName: "Aiko",
     locale: "en_US",
     type: "website",
-    images: ["https://i.ibb.co/Gfx2gkDH/Screenshot-2026-01-09-213805.png"], // Update this with your image link
+    images: ["/logo.png"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Changelog Generator",
-    description: "Generate changelog pages from your releases with ease.",
-    creator: "@changelog_gen",
-    images: ["https://i.ibb.co/Gfx2gkDH/Screenshot-2026-01-09-213805.png"], // Update this with your image link
+    title: "Aiko - Changelog Management",
+    description: "Your changelog management solution.",
+    creator: "@aiko_changelog",
+    images: ["/logo.png"],
   },
 };
 
