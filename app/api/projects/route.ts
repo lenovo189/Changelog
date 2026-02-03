@@ -56,8 +56,8 @@ export async function POST(request: Request) {
         );
     }
 
-    // Generate unique slug from owner and repo name (e.g., "facebook-react")
-    const slug = `${repo_owner}-${repo_name}`.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+    // Generate base slug from owner and repo name (e.g., "facebook-react")
+    const baseSlug = `${repo_owner}-${repo_name}`.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
     // STEP 1: Check if user has an existing project
     const { data: existingProject } = await supabase
@@ -81,7 +81,27 @@ export async function POST(request: Request) {
             .eq("id", existingProject.id);
     }
 
-    // STEP 3: Create fresh new project
+    // STEP 3: Find a unique slug
+    let slug = baseSlug;
+    let suffix = 1;
+    let isUnique = false;
+
+    while (!isUnique) {
+        const { data: existingSlug } = await supabase
+            .from("projects")
+            .select("id")
+            .eq("slug", slug)
+            .maybeSingle();
+
+        if (!existingSlug) {
+            isUnique = true;
+        } else {
+            slug = `${baseSlug}-${suffix}`;
+            suffix++;
+        }
+    }
+
+    // STEP 4: Create fresh new project with unique slug
     const { data: project, error: insertError } = await supabase
         .from("projects")
         .insert({
